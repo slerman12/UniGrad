@@ -147,10 +147,10 @@ def mish_grad(x):
     assert len(dim) == 1
     x_rows = dim[0]
     t_0 = torch.exp(x)
-    t_1 = (torch.ones(x_rows) + t_0)
+    t_1 = (torch.ones(x_rows).to(device) + t_0)
     t_2 = torch.tanh(torch.log(t_1))
     mish_val = (x * t_2)
-    grad = t_2 + ((x * (torch.ones(x_rows) - (t_2 ** 2))) * t_0) / t_1
+    grad = t_2 + ((x * (torch.ones(x_rows).to(device) - (t_2 ** 2))) * t_0) / t_1
     return grad.reshape(old_dim)
 
 
@@ -354,7 +354,8 @@ learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
 
-for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
+# for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
+for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
 
     model = densenet121(activation = activation_choice)
 
