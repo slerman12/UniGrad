@@ -352,6 +352,7 @@ epochs = 100
 batch_size = 128
 learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
+print(torch.cuda.is_available())
 
 for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
 
