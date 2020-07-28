@@ -141,17 +141,17 @@ class swish(nn.Module):
 
 
 def mish_grad(x):
-    old_dim = x.shape
-    x = torch.flatten(x)
-    dim = x.shape
+    old_dim = x.to(device).shape
+    x = torch.flatten(x).to(device)
+    dim = x.to(device).shape
     assert len(dim) == 1
     x_rows = dim[0]
-    t_0 = torch.exp(x)
-    t_1 = (torch.ones(x_rows).to(device) + t_0)
-    t_2 = torch.tanh(torch.log(t_1))
+    t_0 = torch.exp(x).to(device)
+    t_1 = (torch.ones(x_rows).to(device) + t_0).to(device)
+    t_2 = torch.tanh(torch.log(t_1)).to(device)
     mish_val = (x * t_2)
-    grad = t_2 + ((x * (torch.ones(x_rows).to(device) - (t_2 ** 2))) * t_0) / t_1
-    return grad.reshape(old_dim)
+    grad = t_2 + ((x * (torch.ones(x_rows).to(device) - (t_2 ** 2))).to(device) * t_0) / t_1
+    return grad.reshape(old_dim).to(device)
 
 
 class R_Mish_ReLU(torch.autograd.Function):
@@ -164,7 +164,7 @@ class R_Mish_ReLU(torch.autograd.Function):
     def backward(ctx, grad_output):
         input, = ctx.saved_tensors
         grad_input = grad_output.clone()
-        mish_grads = mish_grad(input)
+        mish_grads = mish_grad(input).to(device)
         grad_input[(input < 0) * (0 > grad_input)] = mish_grads[(input < 0) * (0 > grad_input)]
         grad_input[(input < 0) * (0 <= grad_input)] = 0
         return grad_input
@@ -357,7 +357,7 @@ print(torch.cuda.is_available())
 for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
 # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
 
-    model = densenet121(activation = activation_choice)
+    model = densenet121(activation = activation_choice).to(device)
 
     # set loss function
     criterion = nn.CrossEntropyLoss()
@@ -385,7 +385,7 @@ for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish"
 
             optimizer.zero_grad()
 
-            logps = model.forward(inputs)
+            logps = model.forward(inputs).to(device)
             loss = criterion(logps, labels)
             loss.backward()
             optimizer.step()
