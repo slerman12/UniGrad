@@ -360,22 +360,22 @@ class BasicConv2d(nn.Module):
         self.bn = nn.BatchNorm2d(output_channels)
 
         if activation == 'relu':
-            f_activation = nn.ReLU(inplace=True)
+            self.relu = nn.ReLU(inplace=True)
 
         if activation == 'LeakyReLU':
-            f_activation = nn.LeakyReLU(inplace=True)
+            self.relu = nn.LeakyReLU(inplace=True)
 
         if activation == 'swish':
-            f_activation = swish()
+            self.relu = swish()
 
         if activation == 'mish':
-            f_activation = mish()
+            self.relu = mish()
 
         if activation == "R_LeakyReLU_ReLU":
-            f_activation = UniGrad(autograd_func=R_LeakyReLU_ReLU)
+            self.relu = UniGrad(autograd_func=R_LeakyReLU_ReLU)
 
         if activation == "R_Mish_ReLU":
-            f_activation = UniGrad(autograd_func=R_Mish_ReLU)
+            self.relu = UniGrad(autograd_func=R_Mish_ReLU)
 
     def forward(self, x):
         x = self.conv(x)
