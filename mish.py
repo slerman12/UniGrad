@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 
@@ -14,6 +16,10 @@ from torch.utils.data import random_split
 import torchvision
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
+
+parser = argparse.ArgumentParser(description='SoLeakyReLU')
+parser.add_argument('--name', type=str, default="1", help='Name')
+args = parser.parse_args()
 
 # define transformations for train
 train_transform = transforms.Compose([
@@ -443,4 +449,4 @@ for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish"
         running_loss = 0
         model.train()
 
-    train_stats.to_csv('train_log_DenseNet121_{}.csv'.format(activation_choice))
+    train_stats.to_csv('train_log_DenseNet121_{}_{}.csv'.format(activation_choice, args.name))
