@@ -700,8 +700,8 @@ print(torch.cuda.is_available())
 
 for name in ["1", "2", "3"]:
     args.name = name
-    for model in ["inceptionv3", "densenet201", "densenet169", "densenet161"]:
-        args.model = model
+    for model_name in ["inceptionv3", "densenet201", "densenet169", "densenet161"]:
+        args.model = model_name
         for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
@@ -799,4 +799,4 @@ for name in ["1", "2", "3"]:
                 running_loss = 0
                 model.train()
 
-            train_stats.to_csv('train_log_{}_{}_{}.csv'.format(model, activation_choice, args.name))
+            train_stats.to_csv('train_log_{}_{}_{}.csv'.format(args.model, activation_choice, args.name))
