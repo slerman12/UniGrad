@@ -702,7 +702,7 @@ for name in ["1", "2", "3"]:
     args.name = name
     for model_name in ["inceptionv3", "densenet201", "densenet169", "densenet161"]:
         args.model = model_name
-        for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
+        for activation_choice in ["relu"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
                 model = densenet121(activation = activation_choice).to(device)
