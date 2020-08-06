@@ -793,6 +793,7 @@ for name in ["1", "2", "3"]:
                       f"Test loss: {test_loss/len(testloader):.4f}.. "
                       f"Test accuracy: {test_accuracy/len(testloader):.4f}.. "
                       f"Top-3 test accuracy: {top3_test_accuracy/len(testloader):.4f}")
+                print(args.model, args.name, activation_choice)
 
                 train_stats = train_stats.append({'Epoch': epoch, 'Time per epoch':time_elapsed, 'Avg time per step': time_elapsed/len(trainloader), 'Train loss' : running_loss/len(trainloader), 'Train accuracy': train_accuracy/len(trainloader), 'Train top-3 accuracy':top3_train_accuracy/len(trainloader),'Test loss' : test_loss/len(testloader), 'Test accuracy': test_accuracy/len(testloader), 'Test top-3 accuracy':top3_test_accuracy/len(testloader)}, ignore_index=True)
 
