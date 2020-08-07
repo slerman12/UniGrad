@@ -700,7 +700,7 @@ print(torch.cuda.is_available())
 
 for name in ["1", "2", "3"]:
     args.name = name
-    for model_name in ["inceptionv3", "densenet201", "densenet169", "densenet161"]:
+    for model_name in ["densenet201", "densenet169", "densenet161"]:
         args.model = model_name
         for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
