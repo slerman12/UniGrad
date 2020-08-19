@@ -16,6 +16,10 @@ from torch.utils.data import random_split
 import torchvision
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
+# %matplotlib inline
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-whitegrid')
+import numpy as np
 
 parser = argparse.ArgumentParser(description='SoLeakyReLU')
 parser.add_argument('--name', type=str, default="1", help='Name')
@@ -176,11 +180,16 @@ class R_Mish_ReLU(torch.autograd.Function):
         grad_input[(input < 0) * (0 <= grad_input)] = 0
         return grad_input
 
+relu_inputs = []
+prev_val_score = 0
+val_increases = []
+relu_input_avgs = []
 
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
+        relu_inputs.extend(input.tolist())
         return input.clamp(min=0)
 
     @staticmethod
@@ -190,6 +199,21 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
         grad_input[(input < 0) * (0 <= grad_input)] = 0
         grad_input[input < 0] /= 100
         return grad_input
+
+# class R_PReLU_ReLU(torch.autograd.Function):
+#     @staticmethod
+#     def forward(ctx, input):
+#         ctx.save_for_backward(input)
+#         return input.clamp(min=0)
+#
+#     @staticmethod
+#     def backward(ctx, grad_output):
+#         input, = ctx.saved_tensors
+#         grad_input = grad_output.clone()
+#         grad_input[(input < 0) * (0 <= grad_input)] = 0
+#         grad_input[input < 0] /= 100
+#         grad_input[input < 0] *=
+#         return grad_input
 
 
 # custom activation
@@ -698,11 +722,14 @@ learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
 
-for name in ["1", "2", "3"]:
+# for name in ["1", "2", "3"]:
+for name in ["1"]:
     args.name = name
-    for model_name in ["densenet201", "densenet169", "densenet161"]:
+    # for model_name in ["densenet201", "densenet169", "densenet161"]:
+    for model_name in ["densenet201", "densenet161"]:
         args.model = model_name
-        for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
+        # for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
+        for activation_choice in ["R_LeakyReLU_ReLU"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
                 model = densenet121(activation = activation_choice).to(device)
@@ -796,8 +823,15 @@ for name in ["1", "2", "3"]:
                 print(args.model, args.name, activation_choice)
 
                 train_stats = train_stats.append({'Epoch': epoch, 'Time per epoch':time_elapsed, 'Avg time per step': time_elapsed/len(trainloader), 'Train loss' : running_loss/len(trainloader), 'Train accuracy': train_accuracy/len(trainloader), 'Train top-3 accuracy':top3_train_accuracy/len(trainloader),'Test loss' : test_loss/len(testloader), 'Test accuracy': test_accuracy/len(testloader), 'Test top-3 accuracy':top3_test_accuracy/len(testloader)}, ignore_index=True)
+                val_increases = val_increases.append(test_accuracy/len(testloader) - prev_val_score)
+                relu_input_avgs = relu_input_avgs.append(np.mean(relu_inputs))
+                relu_inputs = []
+                prev_val_score = test_accuracy/len(testloader)
 
                 running_loss = 0
                 model.train()
 
             train_stats.to_csv('train_log_{}_{}_{}.csv'.format(args.model, activation_choice, args.name))
+            plt.plot(relu_input_avgs, val_increases, 'o', color='black')
+            plt.savefig('inputs_vs_scores_plot_{}_{}_{}.png'.format(args.model, activation_choice, args.name))
+            plt.close()
