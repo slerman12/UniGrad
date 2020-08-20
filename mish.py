@@ -260,7 +260,7 @@ class Bottleneck(nn.Module):
         if activation == "R_Mish_ReLU":
             f_activation = UniGrad(autograd_func=R_Mish_ReLU)
 
-        if isinstance(activation, int):
+        if isinstance(activation, float):
             f_activation = UniGrad(autograd_func=R_LeakyReLU_ReLU, coef=activation)
 
         #"""We find this design especially effective for DenseNet and
@@ -333,7 +333,7 @@ class DenseNet(nn.Module):
         if activation == "R_Mish_ReLU":
             f_activation = UniGrad(autograd_func=R_Mish_ReLU)
 
-        if isinstance(activation, int):
+        if isinstance(activation, float):
             f_activation = UniGrad(autograd_func=R_LeakyReLU_ReLU, coef=activation)
 
         self.features = nn.Sequential()
