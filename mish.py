@@ -717,7 +717,7 @@ trainloader = get_training_dataloader(train_transform)
 testloader = get_testing_dataloader(test_transform)
 
 epochs = 100
-batch_size = 32
+batch_size = 128
 learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
@@ -726,7 +726,7 @@ print(torch.cuda.is_available())
 for name in ["1"]:
     args.name = name
     # for model_name in ["densenet201", "densenet169", "densenet161"]:
-    for model_name in ["densenet201", "densenet161"]:
+    for model_name in ["densenet161"]:
         args.model = model_name
         # for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
         for activation_choice in ["R_LeakyReLU_ReLU"]:
