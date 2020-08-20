@@ -180,16 +180,16 @@ class R_Mish_ReLU(torch.autograd.Function):
         grad_input[(input < 0) * (0 <= grad_input)] = 0
         return grad_input
 
-relu_inputs = []
-prev_val_score = 0
-val_increases = []
-relu_input_avgs = []
+# relu_inputs = []
+# prev_val_score = 0
+# val_increases = []
+# relu_input_avgs = []
 
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input, coef=0.01):
         ctx.save_for_backward(input, coef)
-        relu_inputs.extend(input.tolist())
+        # relu_inputs.extend(input.tolist())
         return input.clamp(min=0)
 
     @staticmethod
@@ -259,6 +259,9 @@ class Bottleneck(nn.Module):
 
         if activation == "R_Mish_ReLU":
             f_activation = UniGrad(autograd_func=R_Mish_ReLU)
+
+        if isinstance(activation, int):
+            f_activation = UniGrad(autograd_func=R_LeakyReLU_ReLU, coef=activation)
 
         #"""We find this design especially effective for DenseNet and
         #we refer to our network with such a bottleneck layer, i.e.,
@@ -331,7 +334,7 @@ class DenseNet(nn.Module):
             f_activation = UniGrad(autograd_func=R_Mish_ReLU)
 
         if isinstance(activation, int):
-            f_activation = UniGrad(autograd_func=R_Mish_ReLU, coef=activation)
+            f_activation = UniGrad(autograd_func=R_LeakyReLU_ReLU, coef=activation)
 
         self.features = nn.Sequential()
 
@@ -729,7 +732,7 @@ learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
 
-for name in ["1", "2", "3"]:
+# for name in ["1", "2", "3"]:
 for name in ["1", "2"]:
     args.name = name
     # for model_name in ["densenet201", "densenet169", "densenet161"]:
