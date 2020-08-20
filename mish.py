@@ -187,18 +187,17 @@ relu_input_avgs = []
 
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, input):
-        ctx.save_for_backward(input)
-        relu_inputs.extend(np.mean(input.to("cpu").tolist()))
-        print(relu_inputs)
+    def forward(ctx, input, coef=0.01):
+        ctx.save_for_backward(input, coef)
+        relu_inputs.extend(input.tolist())
         return input.clamp(min=0)
 
     @staticmethod
     def backward(ctx, grad_output):
-        input, = ctx.saved_tensors
+        input, coef = ctx.saved_tensors
         grad_input = grad_output.clone()
         grad_input[(input < 0) * (0 <= grad_input)] = 0
-        grad_input[input < 0] /= 100
+        grad_input[input < 0] *= coef
         return grad_input
 
 # class R_PReLU_ReLU(torch.autograd.Function):
@@ -219,12 +218,16 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
 
 # custom activation
 class UniGrad(nn.Module):
-    def __init__(self, autograd_func):
+    def __init__(self, autograd_func, coef=None):
         super(UniGrad, self).__init__()
         self.autograd_func = autograd_func
+        self.coef = coef
 
     def forward(self, x):
-        return self.autograd_func.apply(x)
+        if self.coef is None:
+            return self.autograd_func.apply(x)
+        else:
+            return self.autograd_func.apply(x, self.coef)
 
 #"""Bottleneck layers. Although each layer only produces k
 #output feature-maps, it typically has many more inputs. It
@@ -326,6 +329,9 @@ class DenseNet(nn.Module):
 
         if activation == "R_Mish_ReLU":
             f_activation = UniGrad(autograd_func=R_Mish_ReLU)
+
+        if isinstance(activation, int):
+            f_activation = UniGrad(autograd_func=R_Mish_ReLU, coef=activation)
 
         self.features = nn.Sequential()
 
@@ -718,19 +724,19 @@ trainloader = get_training_dataloader(train_transform)
 testloader = get_testing_dataloader(test_transform)
 
 epochs = 100
-batch_size = 1
+batch_size = 128
 learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
 
-# for name in ["1", "2", "3"]:
-for name in ["1"]:
+for name in ["1", "2", "3"]:
+for name in ["1", "2"]:
     args.name = name
     # for model_name in ["densenet201", "densenet169", "densenet161"]:
-    for model_name in ["densenet161"]:
+    for model_name in ["densenet201", "densenet161"]:
         args.model = model_name
         # for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
-        for activation_choice in ["R_LeakyReLU_ReLU"]:
+        for activation_choice in [0.1, 0.001, 0.3, 0.8, 0.005]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
                 model = densenet121(activation = activation_choice).to(device)
@@ -824,15 +830,15 @@ for name in ["1"]:
                 print(args.model, args.name, activation_choice)
 
                 train_stats = train_stats.append({'Epoch': epoch, 'Time per epoch':time_elapsed, 'Avg time per step': time_elapsed/len(trainloader), 'Train loss' : running_loss/len(trainloader), 'Train accuracy': train_accuracy/len(trainloader), 'Train top-3 accuracy':top3_train_accuracy/len(trainloader),'Test loss' : test_loss/len(testloader), 'Test accuracy': test_accuracy/len(testloader), 'Test top-3 accuracy':top3_test_accuracy/len(testloader)}, ignore_index=True)
-                val_increases = val_increases.append(test_accuracy/len(testloader) - prev_val_score)
-                relu_input_avgs = relu_input_avgs.append(np.mean(relu_inputs))
-                relu_inputs = []
-                prev_val_score = test_accuracy/len(testloader)
+                # val_increases = val_increases.append(test_accuracy/len(testloader) - prev_val_score)
+                # relu_input_avgs = relu_input_avgs.append(np.mean(relu_inputs))
+                # relu_inputs = []
+                # prev_val_score = test_accuracy/len(testloader)
 
                 running_loss = 0
                 model.train()
 
             train_stats.to_csv('train_log_{}_{}_{}.csv'.format(args.model, activation_choice, args.name))
-            plt.plot(relu_input_avgs, val_increases, 'o', color='black')
-            plt.savefig('inputs_vs_scores_plot_{}_{}_{}.png'.format(args.model, activation_choice, args.name))
-            plt.close()
+            # plt.plot(relu_input_avgs, val_increases, 'o', color='black')
+            # plt.savefig('inputs_vs_scores_plot_{}_{}_{}.png'.format(args.model, activation_choice, args.name))
+            # plt.close()
