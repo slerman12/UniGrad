@@ -190,6 +190,7 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
     def forward(ctx, input):
         ctx.save_for_backward(input)
         relu_inputs.extend(np.mean(input.to("cpu").tolist()))
+        print(relu_inputs)
         return input.clamp(min=0)
 
     @staticmethod
