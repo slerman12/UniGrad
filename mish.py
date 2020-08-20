@@ -717,7 +717,7 @@ trainloader = get_training_dataloader(train_transform)
 testloader = get_testing_dataloader(test_transform)
 
 epochs = 100
-batch_size = 128
+batch_size = 64
 learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
