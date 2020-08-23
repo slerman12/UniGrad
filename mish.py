@@ -185,19 +185,21 @@ class R_Mish_ReLU(torch.autograd.Function):
 # val_increases = []
 # relu_input_avgs = []
 
+the_coef = None
+
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, input, coef=0.01):
-        ctx.save_for_backward(input, torch.tensor(coef))
+    def forward(ctx, input):
+        ctx.save_for_backward(input)
         # relu_inputs.extend(input.tolist())
         return input.clamp(min=0)
 
     @staticmethod
     def backward(ctx, grad_output):
-        input, coef = ctx.saved_tensors
+        input, = ctx.saved_tensors
         grad_input = grad_output.clone()
         grad_input[(input < 0) * (0 <= grad_input)] = 0
-        # grad_input[input < 0] *= coef
+        grad_input[input < 0] *= the_coef
         return grad_input
 
 # class R_PReLU_ReLU(torch.autograd.Function):
@@ -221,13 +223,10 @@ class UniGrad(nn.Module):
     def __init__(self, autograd_func, coef=None):
         super(UniGrad, self).__init__()
         self.autograd_func = autograd_func
-        self.coef = coef
+        the_coef = coef
 
     def forward(self, x):
-        if self.coef is None:
-            return self.autograd_func.apply(x)
-        else:
-            return self.autograd_func.apply(x, self.coef)
+        return self.autograd_func.apply(x)
 
 #"""Bottleneck layers. Although each layer only produces k
 #output feature-maps, it typically has many more inputs. It
