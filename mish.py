@@ -197,7 +197,7 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
         input, coef = ctx.saved_tensors
         grad_input = grad_output.clone()
         grad_input[(input < 0) * (0 <= grad_input)] = 0
-        grad_input[input < 0] *= coef
+        # grad_input[input < 0] *= coef
         return grad_input
 
 # class R_PReLU_ReLU(torch.autograd.Function):
