@@ -180,18 +180,18 @@ class R_Mish_ReLU(torch.autograd.Function):
         grad_input[(input < 0) * (0 <= grad_input)] = 0
         return grad_input
 
-# relu_inputs = []
-# prev_val_score = 0
-# val_increases = []
-# relu_input_avgs = []
+relu_inputs = []
+prev_val_score = 0
+val_increases = []
+relu_input_avgs = []
 
-the_coef = None
+the_coef = 0.01
 
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
-        # relu_inputs.extend(input.tolist())
+        relu_inputs.extend(input.tolist())
         return input.clamp(min=0)
 
     @staticmethod
@@ -738,7 +738,8 @@ for name in ["1", "2"]:
     for model_name in ["densenet201", "densenet161"]:
         args.model = model_name
         # for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
-        for activation_choice in [0.1, 0.001, 0.3, 0.8, 0.005]:
+        # for activation_choice in [0.1, 0.001, 0.3, 0.8, 0.005]:
+        for activation_choice in ["R_LeakyReLU_ReLU", "relu"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
                 model = densenet121(activation = activation_choice).to(device)
@@ -832,15 +833,15 @@ for name in ["1", "2"]:
                 print(args.model, args.name, activation_choice)
 
                 train_stats = train_stats.append({'Epoch': epoch, 'Time per epoch':time_elapsed, 'Avg time per step': time_elapsed/len(trainloader), 'Train loss' : running_loss/len(trainloader), 'Train accuracy': train_accuracy/len(trainloader), 'Train top-3 accuracy':top3_train_accuracy/len(trainloader),'Test loss' : test_loss/len(testloader), 'Test accuracy': test_accuracy/len(testloader), 'Test top-3 accuracy':top3_test_accuracy/len(testloader)}, ignore_index=True)
-                # val_increases = val_increases.append(test_accuracy/len(testloader) - prev_val_score)
-                # relu_input_avgs = relu_input_avgs.append(np.mean(relu_inputs))
-                # relu_inputs = []
-                # prev_val_score = test_accuracy/len(testloader)
+                val_increases = val_increases.append(test_accuracy/len(testloader) - prev_val_score)
+                relu_input_avgs = relu_input_avgs.append(np.mean(relu_inputs))
+                relu_inputs = []
+                prev_val_score = test_accuracy/len(testloader)
 
                 running_loss = 0
                 model.train()
 
             train_stats.to_csv('train_log_{}_{}_{}.csv'.format(args.model, activation_choice, args.name))
-            # plt.plot(relu_input_avgs, val_increases, 'o', color='black')
-            # plt.savefig('inputs_vs_scores_plot_{}_{}_{}.png'.format(args.model, activation_choice, args.name))
-            # plt.close()
+            plt.plot(relu_input_avgs, val_increases, 'o', color='black')
+            plt.savefig('inputs_vs_scores_plot_{}_{}_{}.png'.format(args.model, activation_choice, args.name))
+            plt.close()
