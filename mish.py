@@ -188,7 +188,7 @@ class R_Mish_ReLU(torch.autograd.Function):
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input, coef=0.01):
-        ctx.save_for_backward(input, coef)
+        ctx.save_for_backward(input, torch.tensor(coef))
         # relu_inputs.extend(input.tolist())
         return input.clamp(min=0)
 
