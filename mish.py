@@ -223,7 +223,7 @@ class UniGrad(nn.Module):
     def __init__(self, autograd_func, coef=None):
         super(UniGrad, self).__init__()
         self.autograd_func = autograd_func
-        the_coef = coef
+        globals()["the_coef"] = coef
 
     def forward(self, x):
         return self.autograd_func.apply(x)
