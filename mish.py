@@ -185,7 +185,7 @@ prev_val_score = 0
 val_increases = []
 relu_input_avgs = []
 
-the_coef = 0.01
+the_coef = None
 
 class R_LeakyReLU_ReLU(torch.autograd.Function):
     @staticmethod
@@ -220,7 +220,7 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
 
 # custom activation
 class UniGrad(nn.Module):
-    def __init__(self, autograd_func, coef=None):
+    def __init__(self, autograd_func, coef=0.01):
         super(UniGrad, self).__init__()
         self.autograd_func = autograd_func
         globals()["the_coef"] = coef
