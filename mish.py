@@ -736,13 +736,13 @@ print(torch.cuda.is_available())
 for name in ["1", "2", "3"]:
 # for name in ["1", "2"]:
     args.name = name
-    for model_name in ["densenet201", "densenet169", "densenet161"]:
+    for model_name in ["densenet161", "densenet201", "densenet169"]:
     # for model_name in ["densenet201", "densenet161"]:
         args.model = model_name
         # for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
         # for activation_choice in [0.1, 0.001, 0.3, 0.8, 0.005]:
         # for activation_choice in ["R_LeakyReLU_ReLU", "relu"]:
-        for activation_choice in ["R_LeakyReLU_ReLU", 0.001, "LeakyReLU", "mish", "swish", "relu"]:
+        for activation_choice in ["relu", "R_LeakyReLU_ReLU", 0.001, "LeakyReLU", "mish", "swish"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
                 model = densenet121(activation = activation_choice).to(device)
