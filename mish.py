@@ -290,7 +290,8 @@ class Transition(nn.Module):
         #layer""".
         self.down_sample = nn.Sequential(
             nn.BatchNorm2d(in_channels),
-            UniGrad(autograd_func=R_Mish_ReLU),
+            # UniGrad(autograd_func=R_Mish_ReLU),
+            nn.ReLU(inplace=True),
             nn.Conv2d(in_channels, out_channels, 1, bias=False),
             nn.AvgPool2d(2, stride=2)
         )
