@@ -289,7 +289,7 @@ class Transition(nn.Module):
         #convolutional layer followed by a 2×2 average pooling
         #layer""".
         self.down_sample = nn.Sequential(
-            # nn.BatchNorm2d(in_channels),
+            nn.BatchNorm2d(in_channels),
             UniGrad(autograd_func=R_Mish_ReLU),
             # nn.ReLU(inplace=True),
             nn.Conv2d(in_channels, out_channels, 1, bias=False),
