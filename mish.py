@@ -51,8 +51,7 @@ def get_training_dataloader(train_transform, batch_size=128, num_workers=0, shuf
     """
 
     transform_train = train_transform
-    # cifar10_training = torchvision.datasets.CIFAR10(root='.', train=True, download=True, transform=transform_train)
-    cifar10_training = torchvision.datasets.CIFAR100(root='.', train=True, download=True, transform=transform_train)
+    cifar10_training = torchvision.datasets.CIFAR10(root='.', train=True, download=True, transform=transform_train)
     cifar10_training_loader = DataLoader(
         cifar10_training, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size)
 
@@ -272,7 +271,8 @@ class Bottleneck(nn.Module):
             f_activation,
             nn.Conv2d(in_channels, inner_channel, kernel_size=1, bias=False),
             nn.BatchNorm2d(inner_channel),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
+            f_activation,
             nn.Conv2d(inner_channel, growth_rate, kernel_size=3, padding=1, bias=False)
         )
 
@@ -726,8 +726,8 @@ def inceptionv3(activation = 'relu'):
 trainloader = get_training_dataloader(train_transform)
 testloader = get_testing_dataloader(test_transform)
 
-# epochs = 100
-epochs = 200
+epochs = 100
+# epochs = 200
 batch_size = 128
 learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
@@ -736,13 +736,13 @@ print(torch.cuda.is_available())
 for name in ["1", "2", "3"]:
 # for name in ["1", "2"]:
     args.name = name
-    for model_name in ["densenet161", "densenet201", "densenet169"]:
+    for model_name in ["densenet121", "densenet161", "densenet201", "densenet169"]:
     # for model_name in ["densenet201", "densenet161"]:
         args.model = model_name
         # for activation_choice in ["R_LeakyReLU_ReLU", "R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
         # for activation_choice in [0.1, 0.001, 0.3, 0.8, 0.005]:
         # for activation_choice in ["R_LeakyReLU_ReLU", "relu"]:
-        for activation_choice in ["relu", "R_LeakyReLU_ReLU", 0.001, "LeakyReLU", "mish", "swish"]:
+        for activation_choice in ["R_LeakyReLU_ReLU", "relu", 0.001, "LeakyReLU", "mish", "swish"]:
         # for activation_choice in ["R_Mish_ReLU", "LeakyReLU", "mish", "swish", "relu"]:
             if args.model == "densenet121":
                 model = densenet121(activation = activation_choice).to(device)
