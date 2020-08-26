@@ -220,7 +220,7 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
 
 # custom activation
 class UniGrad(nn.Module):
-    def __init__(self, autograd_func, coef=0.01):
+    def __init__(self, autograd_func=R_LeakyReLU_ReLU, coef=0.01):
         super(UniGrad, self).__init__()
         self.autograd_func = autograd_func
         globals()["the_coef"] = coef
@@ -290,7 +290,7 @@ class Transition(nn.Module):
         #layer""".
         self.down_sample = nn.Sequential(
             nn.BatchNorm2d(in_channels),
-            # UniGrad(autograd_func=R_Mish_ReLU),
+            UniGrad(),
             # nn.ReLU(inplace=True),
             nn.Conv2d(in_channels, out_channels, 1, bias=False),
             nn.AvgPool2d(2, stride=2)
