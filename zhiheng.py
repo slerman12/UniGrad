@@ -189,21 +189,6 @@ class R_LeakyReLU_ReLU(torch.autograd.Function):
         grad_input[input < 0] *= the_coef
         return grad_input
 
-# class R_PReLU_ReLU(torch.autograd.Function):
-#     @staticmethod
-#     def forward(ctx, input):
-#         ctx.save_for_backward(input)
-#         return input.clamp(min=0)
-#
-#     @staticmethod
-#     def backward(ctx, grad_output):
-#         input, = ctx.saved_tensors
-#         grad_input = grad_output.clone()
-#         grad_input[(input < 0) * (0 <= grad_input)] = 0
-#         grad_input[input < 0] /= 100
-#         grad_input[input < 0] *=
-#         return grad_input
-
 
 # custom activation
 class UniGrad(nn.Module):
@@ -378,7 +363,7 @@ def densenet161(activation = 'relu'):
 trainloader = get_training_dataloader(train_transform)
 testloader = get_testing_dataloader(test_transform)
 
-epochs = 100
+epochs = 300
 batch_size = 128
 learning_rate = 0.001
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
